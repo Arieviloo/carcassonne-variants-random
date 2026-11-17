@@ -230,7 +230,7 @@ function renderCalc() {
           <input type="number" min="0" value="${c.plates}" data-idx="${i}" data-field="plates" />
         </div>
         <div class="calc-field">
-          <label>Escudos nessas cidades</label>
+          <label>Escudos nas cidades incompletas</label>
           <input type="number" min="0" value="${c.shields}" data-idx="${i}" data-field="shields" />
         </div>
         <div class="calc-field">
