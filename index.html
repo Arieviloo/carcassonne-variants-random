@@ -16,10 +16,14 @@
           <p>Guia do jogo base e sorteio de variações</p>
         </div>
       </div>
-      <nav class="tabs" aria-label="Navegação principal">
+      <button class="hamburger" id="hamburger" type="button" aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="tabs" id="tabs" aria-label="Navegação principal">
         <button class="tab active" data-tab="base">Jogo Base</button>
         <button class="tab" data-tab="variacoes">Variações</button>
         <button class="tab" data-tab="sorteio">Sorteio</button>
+        <button class="tab" data-tab="pontuacao">Pontuação</button>
       </nav>
     </div>
   </header>
@@ -130,6 +134,59 @@
       </div>
 
       <p id="draw-error" class="error-msg hidden"></p>
+    </section>
+
+    <!-- ===== PONTUAÇÃO ===== -->
+    <section id="pontuacao" class="tab-panel">
+      <h2 class="section-title">Pontuação</h2>
+      <p class="section-sub">
+        Marque os pontos durante a partida e calcule a pontuação final (cidades e estradas
+        incompletas, monastérios e campos) com a tabela de referência.
+      </p>
+
+      <div class="score-grid">
+        <!-- Placar -->
+        <div class="card score-card">
+          <div class="score-head">
+            <h3>🏆 Placar</h3>
+            <div class="score-tools">
+              <button id="player-minus" class="btn small ghost" type="button">− jogador</button>
+              <button id="player-plus" class="btn small" type="button">+ jogador</button>
+            </div>
+          </div>
+          <div id="players-list" class="players-list"></div>
+        </div>
+
+        <!-- Calculadora final -->
+        <div class="card calc-card">
+          <h3>🧮 Contagem final</h3>
+          <p class="calc-hint">
+            Preencha os itens incompletos de cada jogador; o subtotal é calculado
+            automaticamente (pontos pela metade, arredondados para baixo).
+          </p>
+          <div class="calc-top">
+            <button id="clear-all" class="btn small ghost" type="button">🧹 Limpar geral (placar e contagem)</button>
+          </div>
+          <div id="calc-list" class="calc-list"></div>
+        </div>
+
+        <!-- Referência -->
+        <div class="card ref-card">
+          <h3>📋 Referência rápida</h3>
+          <table class="ref-table">
+            <tr><th>Feito</th><th>Completo</th><th>Incompleto (fim)</th></tr>
+            <tr><td>🏛️ Cidade</td><td>2 por placa + 2 por escudo</td><td>1 por placa + 1 por escudo</td></tr>
+            <tr><td>🛣️ Estrada</td><td>1 por placa</td><td>1 a cada 2 placas</td></tr>
+            <tr><td>⛪ Monastério</td><td>9 pontos (cercado)</td><td>1 por espaço preenchido + 1</td></tr>
+            <tr><td>🌾 Campo</td><td>—</td><td>3 por cidade completa adjacente</td></tr>
+          </table>
+          <p class="ref-note">
+            Terrenos disputados: pontua quem tiver <strong>mais</strong> seguidores (empates pontuam
+            para todos). No fim do jogo, cidades e estradas incompletas valem metade dos pontos
+            (arredondados para baixo).
+          </p>
+        </div>
+      </div>
     </section>
   </main>
 
