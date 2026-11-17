@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carcassonne — Guia e Sorteio de Variações</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo" aria-hidden="true">
+        <span class="shield">🏰</span>
+        <div>
+          <h1>Carcassonne</h1>
+          <p>Guia do jogo base e sorteio de variações</p>
+        </div>
+      </div>
+      <nav class="tabs" aria-label="Navegação principal">
+        <button class="tab active" data-tab="base">Jogo Base</button>
+        <button class="tab" data-tab="variacoes">Variações</button>
+        <button class="tab" data-tab="sorteio">Sorteio</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== JOGO BASE ===== -->
+    <section id="base" class="tab-panel active">
+      <h2 class="section-title">O Jogo Base</h2>
+      <p class="section-sub">
+        Carcassonne é um jogo de colocação de tiles para 2–5 jogadores, criado por Klaus-Jürgen Wrede
+        e publicado pela Hans im Glück. Os jogadores constroem juntos a paisagem ao redor da cidade
+        francesa de Carcassonne, reivindicando estradas, cidades, campos e monastérios.
+      </p>
+
+      <div class="grid-2">
+        <article class="card">
+          <h3>📦 Componentes</h3>
+          <ul>
+            <li><strong>72 placas de terreno</strong> (incluindo a placa inicial já na mesa)</li>
+            <li><strong>40 seguidores</strong> em 5 cores (8 por jogador: 7 "normais", 1 ladrão/monge, etc. — na prática, cada jogador tem seguidores que atuam como cavaleiro, ladrão, monge ou fazendeiro)</li>
+            <li><strong>1 tabu­leta de pontuação</strong> por jogador</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h3>🎯 Objetivo</h3>
+          <p>
+            Marcar o maior número de pontos de vitória ao terminar estradas, cidades e monastérios
+            durante o jogo e ao valorizar campos no final da partida.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>🔄 Fluxo do Turno</h3>
+          <ol>
+            <li><strong>Posicionar uma placa:</strong> o jogador compra uma placa e a coloca adjacente às placas já na mesa. Estradas devem conectar com estradas, campos com campos, cidades com cidades.</li>
+            <li><strong>Posicionar um seguidor (opcional):</strong> em vez de outra placa... o jogador pode colocar <em>um</em> seguidor, apenas na placa que ele mesmo acabou de colocar, em um terreno ainda sem seguidores.</li>
+            <li><strong>Pontuar:</strong> se uma cidade ou estrada ficar completa (e um monastério ficar cercado), ela vale pontos imediatamente e os seguidores voltam para os donos.</li>
+          </ol>
+        </article>
+
+        <article class="card">
+          <h3>🧮 Pontuação</h3>
+          <ul>
+            <li><strong>Cidade completa:</strong> 2 pontos por placa + 2 por escudo (metade se incompleta no fim do jogo).</li>
+            <li><strong>Estrada completa:</strong> 1 ponto por placa (metade se incompleta).</li>
+            <li><strong>Monastério:</strong> 9 pontos se cercado (8 espaços vizinhos preenchidos); no fim do jogo, 1 ponto por placa adjacente + a própria.</li>
+            <li><strong>Campos (fazendeiros):</strong> ao final, 3 pontos por cidade completa adjacente ao campo.</li>
+            <li><strong>Seguidores em terrenos disputados:</strong> quem tiver mais seguidores num terreno pontua (em caso de empate, ambos pontuam).</li>
+          </ul>
+        </article>
+
+        <article class="card card-wide">
+          <h3>🏁 Fim de Jogo</h3>
+          <p>
+            Quando a última placa de terreno é colocada, o jogo termina. Cada cidade incompleta, estrada
+            incompleta e monastério vale metade dos pontos normais. Por fim, os fazendeiros pontuam nos
+            campos. Vence quem tiver mais pontos de vitória; empates são compartilhados.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== VARIAÇÕES ===== -->
+    <section id="variacoes" class="tab-panel">
+      <h2 class="section-title">Variações Oficiais</h2>
+      <p class="section-sub">
+        Compilação das variações “oficiais” da homepage da Hans im Glück
+        (tradução: Romir G. E. Paulino). Clique em uma variação para expandir as regras completas.
+      </p>
+      <div id="variants-list" class="variants-list"></div>
+    </section>
+
+    <!-- ===== SORTEADOR ===== -->
+    <section id="sorteio" class="tab-panel">
+      <h2 class="section-title">Sorteio de Variações</h2>
+      <p class="section-sub">
+        Para sortear: escolha a quantidade de variações, opcionalmente desmarque as que não
+        deseja incluir no sorteio e clique em 🎲 Sortear. As variações saem <em>sem repetição</em>
+        e valem todas juntas, aplicadas por cima das regras do jogo base.
+      </p>
+
+      <div class="draw-controls card">
+        <div class="control-row">
+          <label for="qty">Quantidade de variações:</label>
+          <div class="stepper">
+            <button id="qty-minus" type="button" aria-label="Diminuir">−</button>
+            <output id="qty" for="qty">3</output>
+            <button id="qty-plus" type="button" aria-label="Aumentar">+</button>
+          </div>
+        </div>
+
+        <details class="filter-details">
+          <summary>Filtrar variações incluídas no sorteio (<span id="filter-count">14</span> ativas)</summary>
+          <div id="filter-list" class="filter-list"></div>
+          <div class="filter-actions">
+            <button id="filter-all" type="button" class="btn small">Marcar todas</button>
+            <button id="filter-none" type="button" class="btn small ghost">Desmarcar todas</button>
+          </div>
+        </details>
+
+        <button id="draw-btn" class="btn primary big">🎲 Sortear</button>
+      </div>
+
+      <div id="roll-stage" class="roll-stage hidden" aria-live="polite">
+        <div id="roll-cards" class="roll-cards"></div>
+        <button id="redraw-btn" class="btn ghost">↻ Sortear novamente</button>
+      </div>
+
+      <p id="draw-error" class="error-msg hidden"></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      App de fã, sem fins comerciais. Regras das variações compiladas da homepage da Hans im Glück.
+    </p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
