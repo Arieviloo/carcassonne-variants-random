@@ -362,9 +362,38 @@ main { max-width: 1100px; margin: 0 auto; padding: 34px 20px 60px; width: 100%; 
   cursor: pointer;
   line-height: 0;
   transition: transform 0.15s;
+  position: relative;
 }
 .player-dot-btn:hover { transform: scale(1.15); }
+/* Dica de clique para trocar a cor */
+.swap-hint {
+  display: none;
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--brown, #3c2f1e);
+  color: #fdf7e7;
+  font-size: 9px;
+  font-weight: bold;
+  line-height: 14px;
+  text-align: center;
+}
+.player-dot-btn:hover .swap-hint,
+.player-dot-btn:focus-visible .swap-hint { display: block; }
+/* Pulso sutil no meeple do placar para indicar interatividade */
+@keyframes meeple-nudge {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+.player-dot-btn .meeple { animation: meeple-nudge 4s ease-in-out infinite; }
+.player-dot-btn:hover .meeple { animation: none; transform: scale(1.1); }
 .meeple { width: 22px; height: 22px; display: inline-block; filter: drop-shadow(0 0 0.5px rgba(60,47,30,0.5)); }
+.meeple-inline { width: 15px; height: 15px; display: inline-block; vertical-align: -2px; }
+.meeple-btn { width: 15px; height: 15px; display: inline-block; vertical-align: -2px; margin-right: 4px; }
 .player-row input {
   width: 100%;
   font-family: var(--font-body);
