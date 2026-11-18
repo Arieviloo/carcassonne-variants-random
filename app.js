@@ -444,6 +444,7 @@ document.getElementById("clear-all").addEventListener("click", () => {
   renderCalc();
   try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
   saveState();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
 function updatePlayerButtons() {
