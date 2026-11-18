@@ -190,6 +190,18 @@
     </section>
   </main>
 
+  <dialog id="add-score-modal" class="score-modal">
+    <form method="dialog" id="add-score-form">
+      <h3 id="add-score-title">Adicionar pontos</h3>
+      <p class="modal-sub" id="add-score-sub"></p>
+      <input type="number" id="add-score-input" value="1" step="any" aria-label="Pontos a adicionar" />
+      <div class="modal-btns">
+        <button type="submit" value="confirm" class="btn small primary">Somar</button>
+        <button type="submit" value="cancel" class="btn small ghost">Cancelar</button>
+      </div>
+    </form>
+  </dialog>
+
   <footer class="site-footer">
     <p>
       App de fã, sem fins comerciais. Regras das variações compiladas da homepage da Hans im Glück.

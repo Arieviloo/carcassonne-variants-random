@@ -44,6 +44,30 @@ variantsList.innerHTML = VARIANTS.map((v, i) => `
   </details>
 `).join("");
 
+/* ===== Persistência (localStorage) ===== */
+const STORAGE_KEY = "carcassonne-state";
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      players,
+      calcInputs,
+      included: [...included],
+      qty,
+      lastDraw: lastDraw.map((v) => v.id),
+    }));
+  } catch (_) { /* storage indisponível */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (_) { return null; }
+}
+const savedState = loadState();
+
 /* ===== Sorteio ===== */
 const included = new Set(VARIANTS.map((v) => v.id));
 
@@ -58,7 +82,8 @@ const filterList = document.getElementById("filter-list");
 const filterCount = document.getElementById("filter-count");
 const redrawBtn = document.getElementById("redraw-btn");
 
-let qty = 3;
+let qty = savedState?.qty ?? 3;
+let lastDraw = [];
 
 function updateQty() {
   qtyOutput.textContent = qty;
@@ -66,8 +91,8 @@ function updateQty() {
   qtyPlus.disabled = qty >= included.size;
 }
 
-qtyMinus.addEventListener("click", () => { qty = Math.max(1, qty - 1); updateQty(); });
-qtyPlus.addEventListener("click", () => { qty = Math.min(included.size, qty + 1); updateQty(); });
+qtyMinus.addEventListener("click", () => { qty = Math.max(1, qty - 1); updateQty(); saveState(); });
+qtyPlus.addEventListener("click", () => { qty = Math.min(included.size, qty + 1); updateQty(); saveState(); });
 
 /* Filtros */
 filterList.innerHTML = VARIANTS.map((v) => {
@@ -81,6 +106,17 @@ filterList.innerHTML = VARIANTS.map((v) => {
 `.trim();
 }).join("");
 filterCount.textContent = included.size;
+
+/* Restaura filtros salvos */
+if (savedState?.included) {
+  included.clear();
+  filterList.querySelectorAll("input").forEach((i) => {
+    const on = savedState.included.includes(i.dataset.id);
+    i.checked = on;
+    if (on) included.add(i.dataset.id);
+  });
+  filterCount.textContent = included.size;
+}
 updateQty();
 
 filterList.addEventListener("change", (e) => {
@@ -90,6 +126,7 @@ filterList.addEventListener("change", (e) => {
   filterCount.textContent = included.size;
   qty = Math.min(qty, Math.max(included.size, 1));
   updateQty();
+  saveState();
 });
 
 document.getElementById("filter-all").addEventListener("click", () => {
@@ -99,6 +136,7 @@ document.getElementById("filter-all").addEventListener("click", () => {
   });
   filterCount.textContent = included.size;
   updateQty();
+  saveState();
 });
 
 document.getElementById("filter-none").addEventListener("click", () => {
@@ -106,6 +144,7 @@ document.getElementById("filter-none").addEventListener("click", () => {
   filterList.querySelectorAll("input").forEach((i) => (i.checked = false));
   filterCount.textContent = 0;
   updateQty();
+  saveState();
 });
 
 /* Sorteio sem repetição (Fisher-Yates) */
@@ -149,6 +188,8 @@ function runDraw() {
   }
 
   const picked = draw(VARIANTS.filter((v) => included.has(v.id)), n);
+  lastDraw = picked;
+  saveState();
 
   // Animação de "embaralhar" antes de revelar
   rollStage.classList.remove("hidden");
@@ -164,6 +205,16 @@ function runDraw() {
     drawBtn.disabled = false;
     rollStage.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, 900);
+}
+
+/* Restaura o último sorteio salvo (sem animação) */
+if (savedState?.lastDraw?.length) {
+  const picked = savedState.lastDraw.map((id) => VARIANTS.find((v) => v.id === id)).filter(Boolean);
+  if (picked.length) {
+    lastDraw = picked;
+    rollStage.classList.remove("hidden");
+    renderResults(picked);
+  }
 }
 
 drawBtn.addEventListener("click", runDraw);
@@ -182,6 +233,12 @@ let players = [
 ];
 let calcInputs = players.map(() => ({ plates: 0, shields: 0, roads: 0, monastery: 0, fields: 0 }));
 
+/* Restaura jogadores e contagem salvos */
+if (savedState?.players?.length) {
+  players = savedState.players;
+  calcInputs = players.map((_, i) => savedState.calcInputs?.[i] ?? { plates: 0, shields: 0, roads: 0, monastery: 0, fields: 0 });
+}
+
 const playersList = document.getElementById("players-list");
 const calcList = document.getElementById("calc-list");
 const playerPlus = document.getElementById("player-plus");
@@ -191,14 +248,14 @@ function renderPlayers() {
   playersList.innerHTML = players.map((p, i) => {
     const color = p.color ?? PLAYER_COLORS[i];
     return `
-    <div class="player-row" style="--player-color:${color}">
+    <div class="player-row" style="--player-color:${color}" data-idx="${i}">
       <button type="button" class="player-dot-btn" data-color="${i}" title="Trocar cor" aria-label="Trocar cor do jogador ${i + 1}">
         <span class="player-dot" style="background:${color}"></span>
       </button>
       <input type="text" value="${p.name}" data-idx="${i}" maxlength="14" aria-label="Nome do jogador ${i + 1}" />
       <div class="stepper mini player-score">
         <button type="button" data-score="-1" data-idx="${i}" aria-label="Diminuir pontos">−</button>
-        <output id="score-${i}">${p.score}</output>
+        <output id="score-${i}" class="score-value" title="Clique para adicionar pontos">${p.score}</output>
         <button type="button" data-score="1" data-idx="${i}" aria-label="Aumentar pontos">+</button>
       </div>
     </div>
@@ -226,16 +283,16 @@ function renderCalc() {
       </div>
       <div class="calc-fields">
         <div class="calc-field">
+          <label>Placas de estrada incompleta</label>
+          <input type="number" min="0" value="${c.roads}" data-idx="${i}" data-field="roads" />
+        </div>
+        <div class="calc-field">
           <label>Placas de cidade incompleta</label>
           <input type="number" min="0" value="${c.plates}" data-idx="${i}" data-field="plates" />
         </div>
         <div class="calc-field">
           <label>Escudos nas cidades incompletas</label>
           <input type="number" min="0" value="${c.shields}" data-idx="${i}" data-field="shields" />
-        </div>
-        <div class="calc-field">
-          <label>Placas de estrada incompleta</label>
-          <input type="number" min="0" value="${c.roads}" data-idx="${i}" data-field="roads" />
         </div>
         <div class="calc-field">
           <label>Espaços preenchidos + monastério</label>
@@ -263,6 +320,7 @@ playersList.addEventListener("input", (e) => {
   if (idx !== undefined) {
     players[idx].name = e.target.value || `Jogador ${Number(idx) + 1}`;
     renderCalc();
+    saveState();
   }
 });
 
@@ -287,6 +345,7 @@ playersList.addEventListener("click", (e) => {
     }
     renderPlayers();
     renderCalc();
+    saveState();
     return;
   }
   const btn = e.target.closest("button[data-score]");
@@ -294,6 +353,41 @@ playersList.addEventListener("click", (e) => {
   const idx = Number(btn.dataset.idx);
   players[idx].score += Number(btn.dataset.score);
   document.getElementById(`score-${idx}`).textContent = players[idx].score;
+  saveState();
+});
+
+/* ===== Modal de adicionar pontos (clique no card do placar) ===== */
+const scoreModal = document.getElementById("add-score-modal");
+const scoreForm = document.getElementById("add-score-form");
+const scoreInput = document.getElementById("add-score-input");
+const scoreSub = document.getElementById("add-score-sub");
+let modalIdx = null;
+
+playersList.addEventListener("click", (e) => {
+  if (e.target.closest("button")) return; // botões (+/−, cor) têm comportamento próprio
+  const value = e.target.closest(".score-value");
+  if (!value) return;
+  const row = value.closest(".player-row");
+  if (!row) return;
+  modalIdx = Number(row.dataset.idx);
+  const color = players[modalIdx].color ?? PLAYER_COLORS[modalIdx];
+  scoreModal.style.setProperty("--player-color", color);
+  scoreModal.querySelector("h3").textContent = `Pontos para ${players[modalIdx].name}`;
+  scoreSub.textContent = `Pontuação atual: ${players[modalIdx].score}`;
+  scoreInput.value = "";
+  scoreModal.showModal();
+  scoreInput.focus();
+});
+
+scoreForm.addEventListener("submit", (e) => {
+  if (e.submitter?.value !== "confirm" || modalIdx === null) return;
+  const val = Number(scoreInput.value);
+  if (!isNaN(val)) {
+    players[modalIdx].score += val;
+    document.getElementById(`score-${modalIdx}`).textContent = players[modalIdx].score;
+    saveState();
+  }
+  modalIdx = null;
 });
 
 calcList.addEventListener("input", (e) => {
@@ -305,6 +399,7 @@ calcList.addEventListener("input", (e) => {
     if (field === "monastery" && v > 9) v = 9;
     calcInputs[idx][field] = v;
     document.getElementById(`subtotal-${idx}`).textContent = calcSubtotal(calcInputs[idx]);
+    saveState();
   }
 });
 
@@ -321,6 +416,7 @@ calcList.addEventListener("click", (e) => {
   const idx = Number(btn.dataset.add);
   players[idx].score += calcSubtotal(calcInputs[idx]);
   document.getElementById(`score-${idx}`).textContent = players[idx].score;
+  saveState();
 });
 
 document.getElementById("clear-all").addEventListener("click", () => {
@@ -328,6 +424,8 @@ document.getElementById("clear-all").addEventListener("click", () => {
   players.forEach((p) => (p.score = 0));
   renderPlayers();
   renderCalc();
+  try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+  saveState();
 });
 
 function updatePlayerButtons() {
@@ -342,6 +440,7 @@ playerPlus.addEventListener("click", () => {
   renderPlayers();
   renderCalc();
   updatePlayerButtons();
+  saveState();
 });
 
 playerMinus.addEventListener("click", () => {
@@ -351,6 +450,7 @@ playerMinus.addEventListener("click", () => {
   renderPlayers();
   renderCalc();
   updatePlayerButtons();
+  saveState();
 });
 
 renderPlayers();
