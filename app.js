@@ -250,7 +250,9 @@ function renderPlayers() {
     return `
     <div class="player-row" style="--player-color:${color}" data-idx="${i}">
       <button type="button" class="player-dot-btn" data-color="${i}" title="Trocar cor" aria-label="Trocar cor do jogador ${i + 1}">
-        <span class="player-dot" style="background:${color}"></span>
+        <svg class="meeple" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="${color}" d="M12 2c-1.7 0-3 .9-3.5 2.3-.5 1.3-.2 2.7.6 3.7C7 9 5 10.6 5 13c0 1.6 1 2.9 2.4 3.6-.9.7-1.4 1.8-1.4 3 0 .8.2 1.6.7 2.4h10.6c.5-.8.7-1.6.7-2.4 0-1.2-.5-2.3-1.4-3C18 15.9 19 14.6 19 13c0-2.4-2-4-4.1-5 .8-1 1.1-2.4.6-3.7C15 2.9 13.7 2 12 2z"/>
+        </svg>
       </button>
       <input type="text" value="${p.name}" data-idx="${i}" maxlength="14" aria-label="Nome do jogador ${i + 1}" />
       <div class="stepper mini player-score">
@@ -271,6 +273,8 @@ function calcSubtotal(c) {
   return cities + roads + monastery + fields;
 }
 
+
+
 function renderCalc() {
   calcList.innerHTML = players.map((p, i) => {
     const c = calcInputs[i];
@@ -279,7 +283,7 @@ function renderCalc() {
     return `
     <div class="calc-row" style="--player-color:${color}">
       <div class="calc-name">
-        <span class="player-dot" style="background:${color}"></span>${p.name}
+        <svg class="meeple" viewBox="0 0 24 24" aria-hidden="true"><path fill="${color}" d="M12 2c-1.7 0-3 .9-3.5 2.3-.5 1.3-.2 2.7.6 3.7C7 9 5 10.6 5 13c0 1.6 1 2.9 2.4 3.6-.9.7-1.4 1.8-1.4 3 0 .8.2 1.6.7 2.4h10.6c.5-.8.7-1.6.7-2.4 0-1.2-.5-2.3-1.4-3C18 15.9 19 14.6 19 13c0-2.4-2-4-4.1-5 .8-1 1.1-2.4.6-3.7C15 2.9 13.7 2 12 2z"/></svg>${p.name}
       </div>
       <div class="calc-fields">
         <div class="calc-field">
@@ -417,6 +421,7 @@ calcList.addEventListener("click", (e) => {
   players[idx].score += calcSubtotal(calcInputs[idx]);
   document.getElementById(`score-${idx}`).textContent = players[idx].score;
   saveState();
+  renderCalc();
 });
 
 document.getElementById("clear-all").addEventListener("click", () => {
